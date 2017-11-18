@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+  <plugin-info>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    <param name="plugin-icon">images/pluginIcon.png</param>
+    <param name="plugin-logo">images/pluginLogo.png</param>
+  </plugin-info>
+  <!-- add our i18n resource -->
+  <resource type="i18n" name="i18n" location="merge-check"/>
+  <!-- add our web resources -->
+  <web-resource key="merge-check-resources" name="merge-check Web Resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <resource type="download" name="merge-check.css" location="/css/merge-check.css"/>
+    <resource type="download" name="merge-check.js" location="/js/merge-check.js"/>
+    <resource type="download" name="images/" location="/images"/>
+    <context>merge-check</context>
+  </web-resource>
+  <repository-hook key="my-merge-check-hook" name="My Merge Check Hook" i18n-name-key="my-merge-check-hook.name" class="com.nee.it.hook.MyMergeCheckHook">
+    <description key="my-merge-check-hook.description">The My Merge Check Hook Plugin</description>
+    <config-form name="My Merge Check Hook Config" key="my-merge-check-hook-config">
+      <view>com.nee.it.hook.mymergecheckhook.view</view>
+      <directory location="/static/"/>
+    </config-form>
+  </repository-hook>
+</atlassian-plugin>
