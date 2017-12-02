@@ -18,11 +18,14 @@ public class MyMergeCheckHook implements RepositoryMergeRequestCheck, Repository
     public void check(RepositoryMergeRequestCheckContext context)
     {
         int requiredReviewers = Integer.parseInt(context.getSettings().getString("reviewers"));
+
         int acceptedCount = 0;
+
         for (PullRequestParticipant reviewer : context.getMergeRequest().getPullRequest().getReviewers())
         {
             acceptedCount = acceptedCount + (reviewer.isApproved() ? 1 : 0);
         }
+
         if (acceptedCount < requiredReviewers)
         {
             context.getMergeRequest().veto("Not enough approved reviewers", acceptedCount + " reviewers have approved your pull request. You need " + requiredReviewers + " (total) before you may merge.");
