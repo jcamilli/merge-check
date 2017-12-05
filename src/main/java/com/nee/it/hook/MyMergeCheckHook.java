@@ -5,6 +5,8 @@ import com.atlassian.bitbucket.hook.repository.RepositoryMergeRequestCheckContex
 import com.atlassian.bitbucket.pull.PullRequestParticipant;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.*;
+import com.atlassian.applinks.api.*;
+import com.atlassian.sal.api.component.ComponentLocator;
 
 import java.util.regex.Pattern;
 
@@ -21,6 +23,13 @@ public class MyMergeCheckHook implements RepositoryMergeRequestCheck, Repository
 
         int acceptedCount = 0;
 
+        ApplicationLinkService appLinkService = ComponentLocator.getComponent(ApplicationLinkService.class);
+
+        for(ApplicationLink link : appLinkService.getApplicationLinks()) {
+
+            link.getName();
+        }
+
         for (PullRequestParticipant reviewer : context.getMergeRequest().getPullRequest().getReviewers())
         {
             acceptedCount = acceptedCount + (reviewer.isApproved() ? 1 : 0);
@@ -28,10 +37,9 @@ public class MyMergeCheckHook implements RepositoryMergeRequestCheck, Repository
 
         if (acceptedCount < requiredReviewers)
         {
-            context.getMergeRequest().veto("Not enough approved reviewers", acceptedCount + " reviewers have approved your pull request. You need " + requiredReviewers + " (total) before you may merge.");
+            context.getMergeRequest().veto("Nott enough approved reviewers", acceptedCount + " reviewerss have approved your pull request. You need " + requiredReviewers + " (total) before you may merge.");
         }
     }
-
 
     public void validate(Settings settings, SettingsValidationErrors errors, Repository repository)
     {

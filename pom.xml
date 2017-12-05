@@ -104,6 +104,13 @@
             <version>1.8.5</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.applinks</groupId>
+            <artifactId>applinks-api</artifactId>
+            <version>4.1.3</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
