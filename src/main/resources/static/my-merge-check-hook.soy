@@ -5,11 +5,18 @@
  * @param? errors
  */
 {template .view}
+    {call aui.form.textareaField}
+        {param id: 'approvers' /}
+        {param value: $config ? $config['approvers'] : null /}
+        {param labelContent: 'Approved Issue States'  /}
+        {param descriptionText: 'List of approved issue states (comma delimited).' /}
+        {param errorTexts: $errors ? $errors['approvers'] : null /}
+    {/call}
     {call aui.form.textField}
-        {param id: 'reviewers' /}
-        {param value: $config ? $config['reviewers'] : null /}
-        {param labelContent: 'reviewers'  /}
-        {param descriptionText: 'Some description for reviewers' /}
-        {param errorTexts: $errors ? $errors['reviewers'] : null /}
+        {param id: 'overrides' /}
+        {param value: $config ? $config['overrides'] : null /}
+        {param labelContent: 'Reviewer Override Count'  /}
+        {param descriptionText: 'Number of reviewers required to override incorrect issue state.' /}
+        {param errorTexts: $errors ? $errors['overrides'] : null /}
     {/call}
 {/template}
