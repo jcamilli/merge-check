@@ -14,18 +14,16 @@
     <resource type="i18n" name="i18n" location="merge-check"/>
     <!-- add our web resources -->
 
-    <web-resource key="merge-check-resources" name="merge-check Web Resources">
+    <web-resource key="merge-check-resources" name="Business-approved Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
-        <resource type="download" name="merge-check.css" location="/css/merge-check.css"/>
-        <resource type="download" name="merge-check.js" location="/js/merge-check.js"/>
         <resource type="download" name="images/" location="/images"/>
         <context>merge-check</context>
     </web-resource>
 
-    <repository-hook key="my-merge-check-hook" name="My Merge Check Hook" i18n-name-key="my-merge-check-hook.name" class="com.nee.it.hook.MyMergeCheckHook">
+    <repository-hook key="my-merge-check-hook" name="Business Approved" i18n-name-key="my-merge-check-hook.name" class="com.nee.it.hook.BusinessApprovedHook">
         <description key="my-merge-check-hook.description">The My Merge Check Hook Plugin</description>
-        <config-form name="My Merge Check Hook Config" key="my-merge-check-hook-config">
-            <view>com.nee.it.hook.mymergecheckhook.view</view>
+        <config-form name="Business Approved Config" key="business-approved-merge-check">
+            <view>com.nee.it.hook.businessapprovedhook.view</view>
             <directory location="/static/"/>
         </config-form>
     </repository-hook>

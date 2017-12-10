@@ -1,17 +1,20 @@
-{namespace com.nee.it.hook.mymergecheckhook}
+{namespace com.nee.it.hook.businessapprovedhook}
 
 /**
  * @param? config
  * @param? errors
  */
 {template .view}
+
     {call aui.form.textareaField}
-        {param id: 'approvers' /}
-        {param value: $config ? $config['approvers'] : null /}
-        {param labelContent: 'Approved Issue States'  /}
-        {param descriptionText: 'List of approved issue states (comma delimited).' /}
-        {param errorTexts: $errors ? $errors['approvers'] : null /}
+        {param id: 'approved-states' /}
+        {param labelContent: 'Approved Issue States' /}
+        {param value: $config ? $config['approved-states'] : null /}
+        {param descriptionText: 'Comma delimited list of approved states. Merges not allowed unless Pull Request title issues all have states found in this list.' /}
+        {param errorTexts: $errors ? $errors['approved-states'] : null /}
+        {param rows: '10' /}
     {/call}
+
     {call aui.form.textField}
         {param id: 'overrides' /}
         {param value: $config ? $config['overrides'] : null /}
@@ -19,4 +22,5 @@
         {param descriptionText: 'Number of reviewers required to override incorrect issue state.' /}
         {param errorTexts: $errors ? $errors['overrides'] : null /}
     {/call}
+
 {/template}

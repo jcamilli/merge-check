@@ -31,9 +31,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MyMergeCheckHook implements RepositoryMergeRequestCheck, RepositorySettingsValidator
+public class BusinessApprovedHook implements RepositoryMergeRequestCheck, RepositorySettingsValidator
 {
-    private static final Logger log = LoggerFactory.getLogger(MyMergeCheckHook.class);
+    private static final Logger log = LoggerFactory.getLogger(BusinessApprovedHook.class);
+
+    final static String FIELD_APPROVED_STATES = "approved-states";
+
+    final static String FIELD_REVIEWER_COUNT = "approvers";
+    final static int FIELD_REVIEWER_COUNT_DEFAULT = 999;
 
     /**
      * Vetos a pull-request if all issues are not approved.
@@ -41,34 +46,55 @@ public class MyMergeCheckHook implements RepositoryMergeRequestCheck, Repository
      */
     public void check(RepositoryMergeRequestCheckContext context)
     {
-        int overrideCount = getIntegerFromContextSettings(context, "overrides", 0);
+        // If 1 or more errors, merge will be vetoed.
+        ArrayList<String> errors = new ArrayList<String>();
 
-        PullRequest pr = context.getMergeRequest().getPullRequest();
+        PullRequest pullrequest = context.getMergeRequest().getPullRequest();
+
+        // ----------------------------------------------------------------------------------
+        // Check Reviewer Count
+        int overrideCount = getIntegerFromContextSettings(context, FIELD_REVIEWER_COUNT, FIELD_REVIEWER_COUNT_DEFAULT);
 
         // If we are overridden by reviewers, skip check of business approvals.
-        if(isApprovalOverriddenByReview(pr.getReviewers(), overrideCount) == false) {
+        if(isApprovalOverriddenByReviewers(pullrequest.getReviewers(), overrideCount) == false) {
 
-            String prTitle = pr.getTitle();
+            // ------------------------------------------------------------------------------
+            // Check if issues in title are approved.
+            checkIfIssuesApproved(context, errors, pullrequest);
+        }
 
-            ArrayList<String> errors = new ArrayList<String>();
-
-            List<String> issues = getIssuesFromTitle(prTitle);
-
-            if (issues.size() == 0) {
-
-                errors.add("No issues found in PR title.");
-
-            } else {
-
-                String[] approvals = getApproversFromContextSetting("approvers", context);
-
-                List<String> newErrors = isIssuesApproved(issues, approvals);
-
-                errors.addAll(newErrors);
-            }
-
-            // Veto happens here.
+        // Veto happens here.
+        if(errors.size() > 0)
+        {
             vetoMergeIfErrors(context, errors);
+        }
+    }
+
+    /**
+     * If any issues specified in pull request title are not approved, an error will be
+     * added to parameter errors.
+     *
+     * @param context Pull request context
+     * @param errors
+     * @param pullrequest
+     */
+    private void checkIfIssuesApproved(RepositoryMergeRequestCheckContext context, ArrayList<String> errors, PullRequest pullrequest) {
+
+        String prTitle = pullrequest.getTitle();
+
+        List<String> issues = getIssuesFromTitle(prTitle);
+
+        if (issues.size() == 0) {
+
+            errors.add("Please add all business approved Jira issues to Pull-Request title.");
+
+        } else {
+
+            String[] approvals = getApproversFromContextSetting(FIELD_APPROVED_STATES, context);
+
+            List<String> newErrors = isIssuesApproved(issues, approvals);
+
+            errors.addAll(newErrors);
         }
     }
 
@@ -119,18 +145,19 @@ public class MyMergeCheckHook implements RepositoryMergeRequestCheck, Repository
      * @param overrideCount Override count from hook settings.
      * @return True if overridden. False otherwise.
      */
-    private boolean isApprovalOverriddenByReview(Set<PullRequestParticipant> reviewers, int overrideCount) {
+    private boolean isApprovalOverriddenByReviewers(Set<PullRequestParticipant> reviewers, int overrideCount) {
 
-        int approvalCount = 0;
+        int reviewApprovalCount = 0;
+
         for (PullRequestParticipant reviewer : reviewers)
         {
             if(reviewer.isApproved()) {
 
-                approvalCount++;
+                reviewApprovalCount++;
             }
         }
 
-        return approvalCount >= overrideCount;
+        return reviewApprovalCount >= overrideCount;
     }
 
     /**
@@ -437,7 +464,7 @@ public class MyMergeCheckHook implements RepositoryMergeRequestCheck, Repository
      */
     public void validate(Settings settings, SettingsValidationErrors errors, Repository repository)
     {
-        String numReviewersString = settings.getString("overrides", "0").trim();
+        String numReviewersString = settings.getString(FIELD_REVIEWER_COUNT, "0").trim();
 
         if (numReviewersString.length() == 0)
         {
@@ -445,11 +472,11 @@ public class MyMergeCheckHook implements RepositoryMergeRequestCheck, Repository
         }
         else if (!NUMBER_PATTERN.matcher(numReviewersString).matches())
         {
-            errors.addFieldError("overrides", "Enter a valid number");
+            errors.addFieldError(FIELD_REVIEWER_COUNT, "Enter a valid number");
         }
         else if (Integer.parseInt(numReviewersString) < 0)
         {
-            errors.addFieldError("overrides", "Number of reviewers must be greater or equal to zero");
+            errors.addFieldError(FIELD_REVIEWER_COUNT, "Number of reviewers must be greater or equal to zero");
         }
     }
 
