@@ -1,0 +1,5 @@
+#!/bin/bash
+
+atlas-run-standalone --version 6.3.3 --product jira
+
+
